@@ -1,6 +1,6 @@
 # SRT Vidyamandir — Modern Site (Next.js)
 
-Modern animated school website for **S.R.T. Vidyamandir High School & Junior College**, built with Next.js 16, 3D hero animations, and an admin CMS for events and gallery.
+Modern animated school website for **S.R.T. Vidyamandir High School & Junior College**, built with Next.js 16, PostgreSQL (Neon), and an admin CMS for events, gallery, and announcements.
 
 > This is the **new version** of the site. The original React (CRA) version lives in [SRT-Vidyamandir](https://github.com/harshbrickred-ctrl/SRT-Vidyamandir).
 
@@ -9,34 +9,60 @@ Modern animated school website for **S.R.T. Vidyamandir High School & Junior Col
 | Layer | Stack |
 |-------|-------|
 | Frontend | Next.js 16, TypeScript, Tailwind CSS v4, Framer Motion, React Three Fiber |
-| Backend | FastAPI, MongoDB, JWT auth |
-| Admin | Events, gallery, announcements CMS at `/admin` |
+| API | Next.js Route Handlers (`/api/*`) |
+| Database | PostgreSQL via [Neon](https://neon.tech) + Drizzle ORM |
+| Storage | Vercel Blob (gallery images) |
+| Deploy | Vercel (full-stack monorepo) |
 
 ## Project Structure
 
 ```
-├── src/              # Next.js app (pages, components, lib)
-├── public/           # Static assets
-├── backend/          # FastAPI API server
-└── render.yaml       # Backend deployment config for Render
+├── src/
+│   ├── app/              # Pages + API routes
+│   ├── components/       # UI sections and layout
+│   ├── context/          # Auth provider
+│   ├── db/               # Drizzle schema + Neon client
+│   └── lib/              # Auth, email, API helpers
+├── scripts/              # DB seed script
+├── drizzle.config.ts
+└── .env.example
 ```
 
-## Run Locally
+## Setup (Local)
 
-### 1. Backend (required for admin, events, gallery)
-
-```bash
-cd backend
-cp .env.example .env   # then edit MongoDB + JWT values
-pip install -r requirements.txt
-python -m uvicorn server:app --host 127.0.0.1 --port 8000 --reload
-```
-
-### 2. Frontend
+### 1. Install dependencies
 
 ```bash
 npm install
-cp .env.local.example .env.local   # set NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
+```
+
+### 2. Configure environment
+
+```bash
+cp .env.example .env.local
+```
+
+Fill in:
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DATABASE_URL` | Yes | Neon PostgreSQL connection string |
+| `JWT_SECRET` | Yes | Random secret for auth tokens |
+| `ADMIN_EMAIL` | Yes | Admin login email |
+| `ADMIN_PASSWORD` | Yes | Admin login password |
+| `BLOB_READ_WRITE_TOKEN` | For gallery | Vercel Blob token (Storage → Blob in Vercel dashboard) |
+| `SMTP_*` | Optional | Email notifications for admissions/contact |
+
+### 3. Create database tables
+
+```bash
+npm run db:push
+npm run db:seed
+```
+
+### 4. Run the app
+
+```bash
 npm run dev
 ```
 
@@ -45,27 +71,33 @@ Open [http://localhost:3000](http://localhost:3000)
 ### Admin Login
 
 - URL: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
-- Default: `admin@srtvidyamandir.com` / `admin123`
+- Default: `admin@srtvidyamandir.com` / `admin123` (change via env vars)
 
-## Gallery Uploads
+## Admin Dashboard
 
-Without `EMERGENT_LLM_KEY`, images are stored locally in `backend/uploads/`. For cloud storage in production, set `EMERGENT_LLM_KEY` in `backend/.env`.
+At `/admin` you can manage:
 
-## Deployment
+- **Events** — title, date, category, description, optional image URL
+- **Gallery** — upload images (JPEG/PNG/GIF/WebP, max 10MB) to Vercel Blob
+- **Announcements** — title, content, priority (normal/high/urgent)
 
-### Backend → Render
+## Deploy to Vercel
 
-1. Connect this repo to Render
-2. Root directory: `backend`
-3. Build: `pip install -r requirements.txt`
-4. Start: `uvicorn server:app --host 0.0.0.0 --port $PORT`
-5. Set env vars: `MONGO_URL`, `DB_NAME`, `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `CORS_ORIGINS`
+1. Push this repo to GitHub
+2. Import the project on [Vercel](https://vercel.com)
+3. Add environment variables from `.env.example`
+4. Create a **Vercel Blob** store and link `BLOB_READ_WRITE_TOKEN`
+5. Create a **Neon** database and set `DATABASE_URL`
+6. After first deploy, run locally (or via CI):
 
-### Frontend → Vercel
+   ```bash
+   npm run db:push
+   npm run db:seed
+   ```
 
-1. Import this repo on Vercel (root = repo root)
-2. Set `NEXT_PUBLIC_API_URL` to your Render backend URL
-3. Build: `npm run build`
+   Or run `db:push` against production `DATABASE_URL` before going live.
+
+No separate backend server is required — everything runs on Vercel.
 
 ## License
 

@@ -1,11 +1,7 @@
 import axios from "axios";
 
-export const BACKEND_URL = (
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-).replace(/\/+$/, "");
-
 const api = axios.create({
-  baseURL: `${BACKEND_URL}/api`,
+  baseURL: "/api",
   headers: { "Content-Type": "application/json" },
 });
 
@@ -49,7 +45,7 @@ export function formatApiErrorDetail(detail: unknown): string {
 }
 
 export function galleryImageUrl(id: string) {
-  return `${BACKEND_URL}/api/gallery/image/${id}`;
+  return `/api/gallery/image/${id}`;
 }
 
 export default api;

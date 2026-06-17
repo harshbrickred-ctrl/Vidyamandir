@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/context/auth-context";
-import api, { BACKEND_URL, formatApiErrorDetail, galleryImageUrl } from "@/lib/api";
+import api, { formatApiErrorDetail, galleryImageUrl } from "@/lib/api";
 import { EVENT_CATEGORIES, GALLERY_CATEGORIES } from "@/lib/content";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -429,7 +429,6 @@ function GalleryManager() {
           ))
         )}
       </div>
-      <p className="mt-4 text-xs text-stone-400">Images served from {BACKEND_URL}/api/gallery/image/&#123;id&#125;</p>
     </div>
   );
 }

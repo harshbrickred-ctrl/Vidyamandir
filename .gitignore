@@ -17,9 +17,11 @@ next-env.d.ts
 
 # Environment
 .env
-.env.*
-!.env.local.example
+.env.local
+.env.*.local
 backend/.env
+!.env.local.example
+!backend/.env.example
 backend/uploads/
 
 # Python

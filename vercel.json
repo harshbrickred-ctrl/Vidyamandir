@@ -1,0 +1,11 @@
+{
+  "experimentalServices": {
+    "web": {
+      "type": "web",
+      "routePrefix": "/",
+      "framework": "nextjs",
+      "installCommand": "npm install",
+      "buildCommand": "npm run build"
+    }
+  }
+}
